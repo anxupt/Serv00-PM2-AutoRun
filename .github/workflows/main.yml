@@ -22,10 +22,11 @@ jobs:
     - name: Check if service is running
       id: check_service
       run: |
-        if curl --head --silent --fail https://uk.dovia.eu.org/dashboard > /dev/null; then #这里改成你的Web服务的地址
-          echo "service_status=running" >> $GITHUB_ENV
-        else
+       local CODE=$(curl -o /dev/null -s -w "%{http_code}\n" --connect-timeout 10 --max-time 30 https://uk.dovia.eu.org/dashboard)
+        if [ "$CODE" != "200" ]; then
           echo "service_status=not_running" >> $GITHUB_ENV
+        else
+          echo "service_status=running" >> $GITHUB_ENV
         fi
 
     - name: Run script on remote server if service is not running
